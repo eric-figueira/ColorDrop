@@ -1,5 +1,8 @@
 import pygame
 import math
+from network import Network
+from game import Game
+from player import Player
 
 pygame.init()
 pygame.font.init()
@@ -9,6 +12,9 @@ width = 750
 height = 850
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Color Drop")
+
+board_size = 500
+player_size = 50
 
 # Load Fonts
 press_key_font = pygame.font.Font("assets/prstart.ttf", 20)
@@ -28,23 +34,39 @@ def sine_wave(speed, time, how_far, overallY):
     return y
 
 
-def redraw_main_screen():
-    win.fill((255, 255, 255))
+
+def redraw_main_screen(p, players):
+    win.fill((30, 30, 30))
+    pygame.draw.rect(win, (10, 10, 10), (width / 2 - board_size / 2, height / 2 - board_size / 2, board_size, board_size))
+    p.draw(win, (207, 181, 59))
+    for player in players:
+        player.draw(win, (100, 100, 100))
+    pygame.display.update()
 
 
 def main():
     run = True
     clock = pygame.time.Clock()
+    # Must get the game
+
+    # Create a network
+    n = Network()
+    p = n.getP()
 
     while run:
         clock.tick(60)
-        pygame.display.update()
+        # Receive other players objects from the server
+        players = n.send(p)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
                 run = False
+                break
 
-        redraw_main_screen()
+        p.move(False, (0,0), (0,0), (0,0), (0,0))
+        # Players is the array of the other players objects (they will be drawn as
+        # gray while the player will be draw with another color)
+        redraw_main_screen(p, players)
 
 
 def redraw_menu_screen():

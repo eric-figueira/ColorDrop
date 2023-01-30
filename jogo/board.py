@@ -1,10 +1,10 @@
 import pygame, random
 
 width = 750
-height = 750
+height = 850
 
 board_size = 500
-squareSize = 100
+squareSize = 50
 start_board_x = width // 2 - board_size // 2
 start_board_y = height // 2 - board_size // 2
 
