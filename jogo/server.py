@@ -47,6 +47,7 @@ def connection_supervisor(conn, gameId, playerId):
 
     p = Player(playerId, pos[0], pos[1], 25, 25)
     players.append(p)
+    games[gameId].add_to_game(p)
     conn.send(pickle.dumps(p))
 
     while True:
@@ -58,9 +59,9 @@ def connection_supervisor(conn, gameId, playerId):
                 break
             else:
                 reply = []
-                for player in players:
-                    # We want to send back to the client the all the players, but not himself, and we can distinguish
-                    # players by their playerId
+                # We want to send back to the client all the players in the game, but not himself,
+                # and we can distinguish players by their playerId
+                for player in games[gameId].players:
                     if player.playerId != p.playerId:
                         reply.append(player)
                 # Append board
@@ -88,9 +89,9 @@ while True:
     game_found = False
 
     for game in games:
-        # Add player to game in case we find one
+        # Add player to game in case we find one, however, we'll actually add the player to
+        # the game in the game_supervisor
         if not games[game].ready and len(games[game].players) <= 8:
-            games[game].add_to_game(playerIdCount)
             print(">> Adding player ", playerIdCount, " to game ", gameId)
             game_found = True
 
@@ -99,7 +100,6 @@ while True:
         gameId += 1
         games[gameId] = Game(gameId)
         print(">> Creating game ", gameId)
-        games[gameId].add_to_game(playerIdCount)
 
     # Add a 15 sec timer
 
