@@ -21,7 +21,6 @@ print(">> Server started on port ", port, "- Waiting for connections")
 
 games = {}
 gameId = 0
-players = []
 
 
 def get_random_position(board_size, win_w, win_h, player_size):
@@ -51,7 +50,6 @@ def connection_supervisor(conn, gameId):
     pos = get_random_position(500, 750, 850, 50)
 
     p = Player(pos[0], pos[1], 25, 25)
-    players.append(p)
     games[gameId].add_to_game(p)
     conn.send(pickle.dumps(p))
 
@@ -64,22 +62,22 @@ def connection_supervisor(conn, gameId):
                 break
             else:
                 reply = []
-                for player in players:
-                    # We want to send back to the client the all the players, but not himself, and we can distinguish
-                    # players by their playerId
-                    if player.playerId != p.playerId:
+
+                for player in games[gameId].players:
+                    # We want to send back to the client the all the players, but not itself, and we can difer than
+                    # by their indexes in the game's players array
+                    if get_player_index(player, gameId) != get_player_index(p, gameId):
                         reply.append(player)
+
                 # Append board
 
                 conn.sendall(pickle.dumps(reply))
         except:
             break
 
-    print("> Lost connection with ", playerId)
+    print("> Lost connection with ", p)
     conn.close()
-    players.remove(players[playerId])
-    global playerIdCount
-    playerIdCount -= 1
+    games[gameId].players.remove(p)
 
     # Must check if the game is still valid
     if len(games[gameId].players) == 0:
