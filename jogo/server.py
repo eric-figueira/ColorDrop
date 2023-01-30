@@ -42,6 +42,7 @@ def get_random_position(board_size, win_w, win_h, player_size):
 
 
 def connection_supervisor(conn, gameId, playerId):
+    print(playerId)
     # Send random x,y to the player
     pos = get_random_position(500, 750, 850, 50)
 
@@ -72,6 +73,8 @@ def connection_supervisor(conn, gameId, playerId):
     print("> Lost connection with ", playerId)
     conn.close()
     players.remove(players[playerId])
+    global playerIdCount
+    playerIdCount -= 1
 
     # Must check if the game is still valid
     if len(games[gameId].players) == 0:
