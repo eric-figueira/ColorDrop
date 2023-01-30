@@ -20,7 +20,6 @@ s.listen()
 print(">> Server started on port ", port, "- Waiting for connections")
 
 games = {}
-playerIdCount = 0
 gameId = 0
 players = []
 
@@ -41,12 +40,11 @@ def get_random_position(board_size, win_w, win_h, player_size):
         return x, y
 
 
-def connection_supervisor(conn, gameId, playerId):
-    print(playerId)
+def connection_supervisor(conn, gameId):
     # Send random x,y to the player
     pos = get_random_position(500, 750, 850, 50)
 
-    p = Player(playerId, pos[0], pos[1], 25, 25)
+    p = Player(pos[0], pos[1], 25, 25)
     players.append(p)
     conn.send(pickle.dumps(p))
 
@@ -91,10 +89,9 @@ while True:
     game_found = False
 
     for game in games:
-        # Add player to game in case we find one
+        # Add player to game in case we find one. The player will be added in fact into the game
+        # in the connection_supervisor
         if not games[game].ready and len(games[game].players) <= 8:
-            games[game].add_to_game(playerIdCount)
-            print(">> Adding player ", playerIdCount, " to game ", gameId)
             game_found = True
 
     # Create a new game otherwise
@@ -102,9 +99,7 @@ while True:
         gameId += 1
         games[gameId] = Game(gameId)
         print(">> Creating game ", gameId)
-        games[gameId].add_to_game(playerIdCount)
 
     # Add a 15 sec timer
 
-    start_new_thread(connection_supervisor, (conn, gameId, playerIdCount))
-    playerIdCount += 1
+    start_new_thread(connection_supervisor, (conn, gameId))
