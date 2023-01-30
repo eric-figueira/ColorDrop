@@ -40,18 +40,25 @@ def get_random_position(board_size, win_w, win_h, player_size):
         return x, y
 
 
+def get_player_index(player, gameId):
+    for i, p in enumerate(games[gameId].players):
+        if p.__eq__(player):
+            return i
+
+
 def connection_supervisor(conn, gameId):
     # Send random x,y to the player
     pos = get_random_position(500, 750, 850, 50)
 
     p = Player(pos[0], pos[1], 25, 25)
     players.append(p)
+    games[gameId].add_to_game(p)
     conn.send(pickle.dumps(p))
 
     while True:
         try:
             data = pickle.loads(conn.recv(2048))
-            players[playerId].setAll(data)
+            games[gameId].players[get_player_index(p, gameId)].setAll(data)
 
             if not data:
                 break
