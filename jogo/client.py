@@ -11,11 +11,11 @@ win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Color Drop")
 
 # Load Fonts
-press_key_font = pygame.font.Font("prstart.ttf", 20)
-menu_screen_font = pygame.font.Font("rexlia rg.otf", 90)
+press_key_font = pygame.font.Font("assets/prstart.ttf", 20)
+menu_screen_font = pygame.font.Font("assets/rexlia rg.otf", 90)
 
 # Load Images
-menu_screen_bg = pygame.image.load("bg.png").convert_alpha()
+menu_screen_bg = pygame.image.load("assets/bg.png").convert_alpha()
 
 # Load Sounds
 
