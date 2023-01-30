@@ -30,8 +30,8 @@ def get_random_position(board_size, win_w, win_h, player_size):
     # Must check if the positions are inside the board
     # If the starting point of the board (top left) is less or equal than the random point and the random point
     # is less or equal than the bottom right point, it means that this location is not allowed
-    #                      (top left x, top left y)                             (bottom right x, bottom right, y)
-    if (win_w / 2 - board_size / 2, win_h / 2 - board_size / 2) <= (x, y) <= (win_w / 2 + board_size / 2, win_h / 2 + board_size / 2):
+    #                      (top left x, top left y)                             (bottom right x, bottom right y)
+    if (win_w / 2 - board_size / 2, win_h / 2 - board_size / 2) < (x + player_size, y + player_size) < (win_w / 2 + board_size / 2, win_h / 2 + board_size / 2):
         # Must call the function again
         ret = get_random_position(board_size, win_w, win_h, player_size)
         return ret
@@ -47,7 +47,7 @@ def get_player_index(player, gameId):
 
 def connection_supervisor(conn, gameId):
     # Send random x,y to the player
-    pos = get_random_position(500, 750, 850, 50)
+    pos = get_random_position(500, 750, 850, 25)
 
     p = Player(pos[0], pos[1], 25, 25)
     games[gameId].add_to_game(p)
