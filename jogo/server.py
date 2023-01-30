@@ -41,7 +41,7 @@ def get_random_position(board_size, win_w, win_h, player_size):
 
 def get_player_index(player, gameId):
     for i, p in enumerate(games[gameId].players):
-        if p.__eq__(player):
+        if p is player:
             return i
 
 
