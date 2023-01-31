@@ -20,9 +20,7 @@ s.listen()
 print(">> Server started on port ", port, "- Waiting for connections")
 
 games = {}
-playerIdCount = 0
 gameId = 0
-players = []
 
 
 def get_random_position(board_size, win_w, win_h, player_size):
@@ -32,8 +30,8 @@ def get_random_position(board_size, win_w, win_h, player_size):
     # Must check if the positions are inside the board
     # If the starting point of the board (top left) is less or equal than the random point and the random point
     # is less or equal than the bottom right point, it means that this location is not allowed
-    #                      (top left x, top left y)                             (bottom right x, bottom right, y)
-    if (win_w / 2 - board_size / 2, win_h / 2 - board_size / 2) <= (x, y) <= (win_w / 2 + board_size / 2, win_h / 2 + board_size / 2):
+    #                      (top left x, top left y)                             (bottom right x, bottom right y)
+    if (win_w / 2 - board_size / 2, win_h / 2 - board_size / 2) < (x + player_size, y + player_size) < (win_w / 2 + board_size / 2, win_h / 2 + board_size / 2):
         # Must call the function again
         ret = get_random_position(board_size, win_w, win_h, player_size)
         return ret
@@ -41,40 +39,45 @@ def get_random_position(board_size, win_w, win_h, player_size):
         return x, y
 
 
-def connection_supervisor(conn, gameId, playerId):
-    print(playerId)
-    # Send random x,y to the player
-    pos = get_random_position(500, 750, 850, 50)
+def get_player_index(player, gameId):
+    for i, p in enumerate(games[gameId].players):
+        if p is player:
+            return i
 
-    p = Player(playerId, pos[0], pos[1], 25, 25)
-    players.append(p)
+
+def connection_supervisor(conn, gameId):
+    # Send random x,y to the player
+    pos = get_random_position(500, 750, 850, 25)
+
+    p = Player(pos[0], pos[1], 25, 25)
+    games[gameId].add_to_game(p)
     conn.send(pickle.dumps(p))
 
     while True:
         try:
             data = pickle.loads(conn.recv(2048))
-            players[playerId].setAll(data)
+            games[gameId].players[get_player_index(p, gameId)].setAll(data)
 
             if not data:
                 break
             else:
                 reply = []
-                for player in players:
-                    # We want to send back to the client the all the players, but not himself, and we can distinguish
-                    # players by their playerId
-                    if player.playerId != p.playerId:
+
+                for player in games[gameId].players:
+                    # We want to send back to the client the all the players, but not itself, and we can difer than
+                    # by their indexes in the game's players array
+                    if get_player_index(player, gameId) != get_player_index(p, gameId):
                         reply.append(player)
+
                 # Append board
 
                 conn.sendall(pickle.dumps(reply))
         except:
             break
 
-    print("> Lost connection with ", playerId)
+    print("> Lost connection with ", p)
     conn.close()
-    players.remove(players[playerId])
-    global playerIdCount
-    playerIdCount -= 1
+    games[gameId].players.remove(p)
 
     # Must check if the game is still valid
     if len(games[gameId].players) == 0:
@@ -88,23 +91,18 @@ def connection_supervisor(conn, gameId, playerId):
 while True:
     conn, addr = s.accept()
     print("> Connected to ", addr)
-    game_found = False
 
     for game in games:
-        # Add player to game in case we find one
+        # Add player to game in case we find one. The player will be added in fact into the game
+        # in the connection_supervisor
         if not games[game].ready and len(games[game].players) <= 8:
-            games[game].add_to_game(playerIdCount)
-            print(">> Adding player ", playerIdCount, " to game ", gameId)
-            game_found = True
-
-    # Create a new game otherwise
-    if not game_found:
+            break
+    # Will only run if the for loops through all games and don't find anyone that fits the player
+    else:
         gameId += 1
         games[gameId] = Game(gameId)
         print(">> Creating game ", gameId)
-        games[gameId].add_to_game(playerIdCount)
 
     # Add a 15 sec timer
 
-    start_new_thread(connection_supervisor, (conn, gameId, playerIdCount))
-    playerIdCount += 1
+    start_new_thread(connection_supervisor, (conn, gameId))

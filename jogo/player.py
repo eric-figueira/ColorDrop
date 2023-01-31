@@ -2,8 +2,7 @@ import pygame
 
 
 class Player:
-    def __init__(self, id, x, y, w, h):
-        self.playerId = id
+    def __init__(self, x, y, w, h):
         self.x = x
         self.y = y
         self.width = w
@@ -12,7 +11,6 @@ class Player:
         self.vel = 3
 
     def setAll(self, model):
-        self.playerId = model.playerId
         self.x = model.x
         self.y = model.y
         self.width = model.width
