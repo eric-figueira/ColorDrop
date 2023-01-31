@@ -4,7 +4,8 @@ import socket
 from _thread import *
 from game import Game
 from player import Player
-from getgame import Getgame
+from getmessage import Getmessage
+from string import String
 
 server = ""
 port = 5555
@@ -53,25 +54,31 @@ def connection_supervisor(conn, gameId):
     games[gameId].add_to_game(p)
     conn.send(pickle.dumps(p))
 
+    message = "Hello World!"
+
     while True:
         try:
             data = pickle.loads(conn.recv(2048))
-            games[gameId].players[get_player_index(p, gameId)].setAll(data)
 
             if not data:
                 break
             else:
-                reply = []
+                if data is Getmessage:
+                    # Wants message
+                    conn.sendall(pickle.dumps(String(message)))
+                else:
+                    # Wants other player's locations and set its new position
+                    games[gameId].players[get_player_index(p, gameId)].setAll(data)
 
-                for player in games[gameId].players:
-                    # We want to send back to the client the all the players, but not itself, and we can difer than
-                    # by their indexes in the game's players array
-                    if get_player_index(player, gameId) != get_player_index(p, gameId):
-                        reply.append(player)
+                    reply = []
 
-                # Append board
-
-                conn.sendall(pickle.dumps(reply))
+                    for player in games[gameId].players:
+                        # We want to send back to the client the all the players, but not itself, and we can difer than
+                        # by their indexes in the game's players array
+                        if get_player_index(player, gameId) != get_player_index(p, gameId):
+                            reply.append(player)
+                    # Append board
+                    conn.sendall(pickle.dumps(reply))
         except:
             break
 

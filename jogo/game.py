@@ -6,6 +6,14 @@ class Game:
         self.whoIsDead = []
         self.id = id
         self.board = []
+        self.message = ""
+        self.currentColor = ""
+
+    def get_message(self):
+        return self.message
+
+    def get_current_color(self):
+        return self.currentColor
 
     def add_to_deaths(self, player):
         self.whoIsDead.append(player)
