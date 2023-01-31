@@ -98,14 +98,16 @@ def connection_supervisor(conn, gameId):
 while True:
     conn, addr = s.accept()
     print("> Connected to ", addr)
+    game_found = False
 
     for game in games:
         # Add player to game in case we find one. The player will be added in fact into the game
         # in the connection_supervisor
         if not games[game].ready and len(games[game].players) <= 8:
+            game_found = True
             break
-    # Will only run if the for loops through all games and don't find anyone that fits the player
-    else:
+            
+    if not game_found:
         gameId += 1
         games[gameId] = Game(gameId)
         print(">> Creating game ", gameId)
