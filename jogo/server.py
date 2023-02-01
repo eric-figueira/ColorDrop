@@ -2,10 +2,12 @@ import random
 import pickle
 import socket
 from _thread import *
+from threading import Timer
 from game import Game
 from player import Player
 from getmessage import Getmessage
 from string import String
+import time
 
 server = ""
 port = 5555
@@ -46,15 +48,34 @@ def get_player_index(player, gameId):
             return i
 
 
+def change_game_message(gameId, message):
+    games[gameId].message = message
+
+
+def start_countdown_gamestart(gameId):
+    i = 15
+    while i >= 1:
+        timer = Timer(1, change_game_message, args=(gameId, f"The game starts in {i} seconds!"))
+        timer.start()
+        time.sleep(1)
+        i -= 1
+    time.sleep(1)
+    change_game_message(gameId, "")
+    # The game began
+    games[gameId].ready = True
+
+
 def connection_supervisor(conn, gameId):
     # Send random x,y to the player
     pos = get_random_position(500, 750, 850, 25)
 
     p = Player(pos[0], pos[1], 25, 25)
     games[gameId].add_to_game(p)
-    conn.send(pickle.dumps(p))
+    # If, when the player is added to the game, the number of players is equal than two, we must start the timer
+    if len(games[gameId].players) == 2:
+        start_countdown_gamestart(gameId)
 
-    message = "Hello World!"
+    conn.send(pickle.dumps(p))
 
     while True:
         try:
@@ -65,7 +86,7 @@ def connection_supervisor(conn, gameId):
             else:
                 if data is Getmessage:
                     # Wants message
-                    conn.sendall(pickle.dumps(String(message)))
+                    conn.sendall(pickle.dumps(String(games[gameId].message)))
                 else:
                     # Wants other player's locations and set its new position
                     games[gameId].players[get_player_index(p, gameId)].setAll(data)
@@ -111,7 +132,5 @@ while True:
         gameId += 1
         games[gameId] = Game(gameId)
         print(">> Creating game ", gameId)
-
-    # Add a 15 sec timer
 
     start_new_thread(connection_supervisor, (conn, gameId))
