@@ -75,7 +75,8 @@ def connection_supervisor(conn, gameId):
 
     p = Player(pos[0], pos[1], 25, 25)
     games[gameId].add_to_game(p)
-    # If, when the player is added to the game, the number of players is equal than two, we must start the timer
+    # If, when the player is added to the game, the number of players is equal than two,
+    # we must start the timer to start the game
     if len(games[gameId].players) == 2:
         start_new_thread(start_countdown_gamestart, (gameId,))
 
