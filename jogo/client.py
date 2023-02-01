@@ -19,6 +19,7 @@ player_size = 50
 press_key_font = pygame.font.Font("assets/prstart.ttf", 20)
 menu_screen_font = pygame.font.Font("assets/rexlia rg.otf", 90)
 message_font = pygame.font.Font("assets/rexlia rg.otf", 30)
+color_font = pygame.font.Font("assets/rexlia rg.otf", 45)
 
 # Load Images
 menu_screen_bg = pygame.image.load("assets/bg.png").convert_alpha()
@@ -35,7 +36,7 @@ def sine_wave(speed, time, how_far, overallY):
 
 
 
-def redraw_main_screen(p, players, message):
+def redraw_main_screen(p, players, message, color):
     win.fill((30, 30, 30))
     # Draw board area
     pygame.draw.rect(win, (10, 10, 10), (width / 2 - board_size / 2, height / 2 - board_size / 2, board_size, board_size))
@@ -46,17 +47,20 @@ def redraw_main_screen(p, players, message):
         player.draw(win, (100, 100, 100))
 
     # Draw message
-    text = message_font.render(message, True, (255, 255, 255))
-    win.blit(text, (20, height - 50))
+    msg_text = message_font.render(message, True, (255, 255, 255))
+    win.blit(msg_text, (20, height - 50))
 
     # Draw current color
+    if color != "":
+        color_text = color_font.render("Color: " + color, True, (255, 255, 255))
+        win.blit(color_text, (width / 2 - color_text.get_width() / 2, 50))
+
     pygame.display.update()
 
 
 def main():
     run = True
     clock = pygame.time.Clock()
-    # Must get the game
 
     # Create a network
     n = Network()
@@ -66,10 +70,14 @@ def main():
         clock.tick(60)
         # Receive other players objects from the server
         players = n.send(p)
+        # Getmessage, Getgamestatus and Getcolor are empty classes that allow the server know what the client wants.
         # Receive messages from the server
         message = n.send(Getmessage).get_string()
         # Receive game status
         has_game_started = int(n.send(Getgamestatus).get_string())
+        # Receive board
+        # Receive random color
+        color = n.send(Getcolor).get_string()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -83,8 +91,8 @@ def main():
                (width / 2 + board_size / 2, height / 2 + board_size / 2),
                width, height)
         # Players is the array of the other players objects (they will be drawn as
-        # gray while the player will be draw with another color)
-        redraw_main_screen(p, players, message)
+        # gray while the player will be drawn with another color)
+        redraw_main_screen(p, players, message, color)
 
 
 def redraw_menu_screen():

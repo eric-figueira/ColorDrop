@@ -12,6 +12,11 @@ import time
 server = ""
 port = 5555
 
+WINDOW_WIDTH = 750
+WINDOW_HEIGHT = 850
+PLAYER_SIZE = 25
+BOARD_SIZE = 500
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
@@ -61,19 +66,29 @@ def start_countdown_gamestart(gameId):
         i -= 1
     time.sleep(1)
     change_game_message(gameId, "")
-    # The game began
+    start_game(gameId)
+
+
+def start_game(gameId):
     games[gameId].ready = True
     # Teleport the players to the center
     for player in games[gameId].players:
-        player.x = 750 / 2 - 25
-        player.y = 850 / 2 - 25
+        player.x = WINDOW_WIDTH / 2 - PLAYER_SIZE
+        player.y = WINDOW_HEIGHT / 2 - PLAYER_SIZE
+    # While the game exists
+    while gameId in games:
+        # Randomize new color
+        games[gameId].randomize_color()
+        # Waits 2 seconds to randomize squares and make them black
+        # Send "Getispositionsafe" that will tell the client whether it is in a black square or not
+        # Wait 3 seconds to make the squares safe again
 
 
 def connection_supervisor(conn, gameId):
     # Send random x,y to the player
-    pos = get_random_position(500, 750, 850, 25)
+    pos = get_random_position(BOARD_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, PLAYER_SIZE)
 
-    p = Player(pos[0], pos[1], 25, 25)
+    p = Player(pos[0], pos[1], PLAYER_SIZE, PLAYER_SIZE)
     games[gameId].add_to_game(p)
     # If, when the player is added to the game, the number of players is equal than two,
     # we must start the timer to start the game
@@ -98,6 +113,8 @@ def connection_supervisor(conn, gameId):
                     if games[gameId].ready:
                         has_started = 1
                     conn.sendall(pickle.dumps(String(has_started)))
+                elif data is Getcolor:
+                    conn.sendall(pickle.dumps(String(games[gameId].get_current_color())))
                 else:
                     # Wants other player's locations and set its new position
                     games[gameId].players[get_player_index(p, gameId)].setAll(data)
@@ -141,7 +158,7 @@ while True:
             
     if not game_found:
         gameId += 1
-        games[gameId] = Game(gameId)
+        games[gameId] = Game(gameId, WINDOW_WIDTH, WINDOW_HEIGHT, BOARD_SIZE)
         print(">> Creating game ", gameId)
 
     start_new_thread(connection_supervisor, (conn, gameId))

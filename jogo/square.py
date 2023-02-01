@@ -3,12 +3,12 @@ import pygame
 
 
 class Square:
-    def __init__(self, x, y, w, h, colors):
+    def __init__(self, x, y, w, h, colors_dict):
         self.x = x
         self.y = y
         self.width = w
         self.height = h
-        self.colors = colors
+        self.colors = colors_dict
         self.color = self.randomize_color(self.colors, 2)
         self.rect = (self.x, self.y, self.width, self.height)
 

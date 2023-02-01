@@ -6,3 +6,7 @@ class Getmessage:
 
 class Getgamestatus:
     pass
+
+
+class Getcolor:
+    pass
