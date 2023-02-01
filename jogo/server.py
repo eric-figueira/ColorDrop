@@ -5,7 +5,7 @@ from _thread import *
 from threading import Timer
 from game import Game
 from player import Player
-from getmessage import Getmessage
+from getgameinfo import *
 from string import String
 import time
 
@@ -63,6 +63,10 @@ def start_countdown_gamestart(gameId):
     change_game_message(gameId, "")
     # The game began
     games[gameId].ready = True
+    # Teleport the players to the center
+    for player in games[gameId].players:
+        player.x = 750 / 2 - 25
+        player.y = 850 / 2 - 25
 
 
 def connection_supervisor(conn, gameId):
@@ -87,6 +91,12 @@ def connection_supervisor(conn, gameId):
                 if data is Getmessage:
                     # Wants message
                     conn.sendall(pickle.dumps(String(games[gameId].message)))
+                elif data is Getgamestatus:
+                    # Wants to know if the game has started
+                    has_started = 0
+                    if games[gameId].ready:
+                        has_started = 1
+                    conn.sendall(pickle.dumps(String(has_started)))
                 else:
                     # Wants other player's locations and set its new position
                     games[gameId].players[get_player_index(p, gameId)].setAll(data)

@@ -21,30 +21,40 @@ class Player:
     def draw(self, window, color):
         pygame.draw.rect(window, color, self.rect)
 
-    def move(self, has_game_started, board_top_left, board_top_right, board_bottom_left, board_bottom_right):
+    def move(self, has_game_started, board_top_left, board_top_right, board_bottom_left, board_bottom_right, win_w, win_h):
         keys = pygame.key.get_pressed()
 
-        # if keys[pygame.K_LEFT]:
-        #
-        #     # Cannot enter the board if the game isn't started
-        #     # Cannot leave the "map"
-        #     if 0 < self.x:
-        #         # Cannot leave the board if the game is started
-        #         if has_game_started:
-        #             if board_top_left[0] < self.x < board_bottom_left[0] - self.height and self.y > board_top_left[1]:
-        #                 self.x -= self.vel
-        #         # else?
         if keys[pygame.K_LEFT]:
-            self.x -= self.vel
+            if has_game_started:
+                if self.x > board_top_left[0]:
+                    self.x -= self.vel
+            else:
+                if self.x > 0:
+                    self.x -= self.vel
 
         if keys[pygame.K_UP]:
-            self.y -= self.vel
+            if has_game_started:
+                if self.y > board_top_left[1]:
+                    self.y -= self.vel
+            else:
+                if self.y > 0:
+                    self.y -= self.vel
 
         if keys[pygame.K_RIGHT]:
-            self.x += self.vel
+            if has_game_started:
+                if self.x < board_top_right[0] - self.width:
+                    self.x += self.vel
+            else:
+                if self.x < win_w - self.width:
+                    self.x += self.vel
 
         if keys[pygame.K_DOWN]:
-            self.y += self.vel
+            if has_game_started:
+                if self.y < board_bottom_left[1] - self.height:
+                    self.y += self.vel
+            else:
+                if self.y < win_h - self.height:
+                    self.y += self.vel
 
         self.update()
 

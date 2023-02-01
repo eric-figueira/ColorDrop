@@ -1,9 +1,7 @@
 import pygame
 import math
 from network import Network
-from game import Game
-from player import Player
-from getmessage import Getmessage
+from getgameinfo import *
 
 pygame.init()
 pygame.font.init()
@@ -70,13 +68,20 @@ def main():
         players = n.send(p)
         # Receive messages from the server
         message = n.send(Getmessage).get_string()
+        # Receive game status
+        has_game_started = int(n.send(Getgamestatus).get_string())
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 break
 
-        p.move(False, (0,0), (0,0), (0,0), (0,0))
+        p.move(has_game_started,
+               (width / 2 - board_size / 2, height / 2 - board_size / 2),
+               (width / 2 + board_size / 2, height / 2 - board_size / 2),
+               (width / 2 - board_size / 2, height / 2 + board_size / 2),
+               (width / 2 + board_size / 2, height / 2 + board_size / 2),
+               width, height)
         # Players is the array of the other players objects (they will be drawn as
         # gray while the player will be draw with another color)
         redraw_main_screen(p, players, message)

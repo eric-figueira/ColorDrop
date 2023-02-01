@@ -1,3 +1,0 @@
-
-class Getmessage:
-    pass
