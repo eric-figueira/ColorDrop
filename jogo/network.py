@@ -23,8 +23,8 @@ class Network:
 
     def send(self, data):
         try:
-            # send a string and receive an object
+            # send and receive an object
             self.client.send(pickle.dumps(data))
-            return pickle.loads(self.client.recv(2048))
+            return pickle.loads(self.client.recv(4096 * 8))
         except socket.error as e:
             print(e)

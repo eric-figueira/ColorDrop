@@ -16,6 +16,7 @@ WINDOW_WIDTH = 750
 WINDOW_HEIGHT = 850
 PLAYER_SIZE = 25
 BOARD_SIZE = 500
+SQUARE_SIZE = 50
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -79,9 +80,15 @@ def start_game(gameId):
     while gameId in games:
         # Randomize new color
         games[gameId].randomize_color()
-        # Waits 2 seconds to randomize squares and make them black
+        # Waits 2 seconds to make the others squares black
+        time.sleep(2)
+        games[gameId].make_squares_black()
         # Send "Getispositionsafe" that will tell the client whether it is in a black square or not
-        # Wait 3 seconds to make the squares safe again
+        # Wait 3 seconds to make a new board
+        time.sleep(3)
+        games[gameId].currentColor = ""
+        games[gameId].generate_new_board()
+        time.sleep(2)
 
 
 def connection_supervisor(conn, gameId):
@@ -114,7 +121,11 @@ def connection_supervisor(conn, gameId):
                         has_started = 1
                     conn.sendall(pickle.dumps(String(has_started)))
                 elif data is Getcolor:
+                    # Wants the randomized color
                     conn.sendall(pickle.dumps(String(games[gameId].get_current_color())))
+                elif data is Getsquares:
+                    # Wants the board's squares
+                    conn.sendall(pickle.dumps(games[gameId].get_board()))
                 else:
                     # Wants other player's locations and set its new position
                     games[gameId].players[get_player_index(p, gameId)].setAll(data)
@@ -158,7 +169,7 @@ while True:
             
     if not game_found:
         gameId += 1
-        games[gameId] = Game(gameId, WINDOW_WIDTH, WINDOW_HEIGHT, BOARD_SIZE)
+        games[gameId] = Game(gameId, WINDOW_WIDTH, WINDOW_HEIGHT, BOARD_SIZE, SQUARE_SIZE)
         print(">> Creating game ", gameId)
 
     start_new_thread(connection_supervisor, (conn, gameId))

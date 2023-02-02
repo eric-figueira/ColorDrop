@@ -3,7 +3,7 @@ import random
 
 
 class Game:
-    def __init__(self, id, win_w, win_h, board_size):
+    def __init__(self, id, win_w, win_h, board_size, square_size):
         self.players = []
         self.ready = False
         self.whoIsDead = []
@@ -11,7 +11,7 @@ class Game:
         self.window_width = win_w
         self.window_height = win_h
         self.board_size = board_size
-        self.square_size = 25
+        self.square_size = square_size
         self.message = ""
         self.currentColor = ""
         self.colors = {
@@ -28,6 +28,9 @@ class Game:
             'Black': (0, 0, 0)
         }
         self.board = self.create_squares()
+
+    def get_board(self):
+        return self.board
 
     def get_message(self):
         return self.message
@@ -60,4 +63,7 @@ class Game:
         randomIndex = random.randint(0, len(self.colors) - 1 - 2)
         self.currentColor = list(self.colors.keys())[randomIndex]
 
-
+    def make_squares_black(self):
+        for sqr in self.board:
+            if sqr.color != self.colors[self.currentColor]:
+                sqr.color = self.colors["Black"]

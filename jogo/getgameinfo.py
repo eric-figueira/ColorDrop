@@ -10,3 +10,7 @@ class Getgamestatus:
 
 class Getcolor:
     pass
+
+
+class Getsquares:
+    pass
