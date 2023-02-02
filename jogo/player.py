@@ -9,6 +9,7 @@ class Player:
         self.height = h
         self.rect = (self.x, self.y, self.width, self.height)
         self.vel = 3
+        self.is_dead = False
 
     def setAll(self, model):
         self.x = model.x
@@ -17,6 +18,7 @@ class Player:
         self.height = model.height
         self.rect = (model.x, model.y, model.width, model.height)
         self.vel = model.vel
+        self.is_dead = model.is_dead
 
     def draw(self, window, color):
         pygame.draw.rect(window, color, self.rect)

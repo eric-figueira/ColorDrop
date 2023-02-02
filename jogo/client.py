@@ -56,9 +56,11 @@ def redraw_main_screen(p, players, message, color, board, has_started):
             square.draw(win)
 
     # Draw player and other players
-    p.draw(win, (207, 181, 59))
+    if not p.is_dead:
+        p.draw(win, (207, 181, 59))
     for player in players:
-        player.draw(win, (100, 100, 100))
+        if not player.is_dead:
+            player.draw(win, (100, 100, 100))
 
     pygame.display.update()
 
@@ -73,7 +75,7 @@ def main():
 
     while run:
         clock.tick(60)
-        # Receive other players objects from the server
+        # Receive other players objects from the server and check if the current position is safe
         players = n.send(p)
         # Getmessage, Getgamestatus and Getcolor are empty classes that allow the server know what the client wants.
         # Receive messages from the server

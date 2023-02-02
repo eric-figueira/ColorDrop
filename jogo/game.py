@@ -6,7 +6,6 @@ class Game:
     def __init__(self, id, win_w, win_h, board_size, square_size):
         self.players = []
         self.ready = False
-        self.whoIsDead = []
         self.id = id
         self.window_width = win_w
         self.window_height = win_h
