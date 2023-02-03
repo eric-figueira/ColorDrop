@@ -140,12 +140,16 @@ def connection_supervisor(conn, gameId):
                     # Check if current position is safe, out of the void
                     if games[gameId].ready:
                         # Get square where the player is on and check if the color of the square is black
-                        for square in games[gameId].get_board():
-                            if square.x <= p.x < square.x + square.width and square.y <= p.y < square.y + square.height:
-                                # Is inside the square
-                                if square.color == (0, 0, 0):
-                                    # Fell into the void
-                                    p.is_dead = True
+                        if not p.is_dead:
+                            for square in games[gameId].get_board():
+                                if square.x < p.x + (p.width / 2) < square.x + square.width \
+                                   and square.y < p.y + (p.height / 2) < square.y + square.height:
+                                    # Is inside the square
+                                    if square.color == (0, 0, 0):
+                                        print("Caiu no void")
+                                        # Fell into the void
+                                        p.is_dead = True
+                                        break
 
                     conn.sendall(pickle.dumps(reply))
         except:
