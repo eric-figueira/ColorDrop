@@ -36,7 +36,7 @@ def sine_wave(speed, time, how_far, overallY):
 
 
 
-def redraw_main_screen(p, players, message, color, board, has_started):
+def redraw_main_screen(p, players, message, color, board, has_started, dead_players):
     win.fill((30, 30, 30))
     # Draw board area
     pygame.draw.rect(win, (10, 10, 10), (width / 2 - board_size / 2, height / 2 - board_size / 2, board_size, board_size))
@@ -56,10 +56,10 @@ def redraw_main_screen(p, players, message, color, board, has_started):
             square.draw(win)
 
     # Draw player and other players
-    if not p.is_dead:
+    if p not in dead_players:
         p.draw(win, (207, 181, 59))
     for player in players:
-        if not player.is_dead:
+        if player not in dead_players:
             player.draw(win, (100, 100, 100))
 
     pygame.display.update()
@@ -77,7 +77,10 @@ def main():
         clock.tick(60)
         # Receive other players objects from the server and check if the current position is safe
         players = n.send(p)
-        # Getmessage, Getgamestatus and Getcolor are empty classes that allow the server know what the client wants.
+
+        # Getmessage, Getgamestatus, Getcolor and Getsquares are empty classes
+        # that allow the server know what the client wants.
+
         # Receive messages from the server
         message = n.send(Getmessage).get_string()
         # Receive game status
@@ -86,6 +89,11 @@ def main():
         color = n.send(Getcolor).get_string()
         # Receive board
         board = n.send(Getsquares)
+
+        # Receive dead playres
+        dead_players = n.send(Getdeadplayers)
+        if p in dead_players:
+            message = "You fell into the void! You can no longer play!"
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -100,7 +108,7 @@ def main():
                width, height)
         # Players is the array of the other players objects (they will be drawn as
         # gray while the player will be drawn with another color)
-        redraw_main_screen(p, players, message, color, board, has_game_started)
+        redraw_main_screen(p, players, message, color, board, has_game_started, dead_players)
 
 
 def redraw_menu_screen():

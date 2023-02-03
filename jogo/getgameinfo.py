@@ -14,3 +14,7 @@ class Getcolor:
 
 class Getsquares:
     pass
+
+
+class Getdeadplayers:
+    pass

@@ -7,6 +7,7 @@ class Game:
         self.players = []
         self.ready = False
         self.id = id
+        self.deadPlayers = []
         self.window_width = win_w
         self.window_height = win_h
         self.board_size = board_size
@@ -38,7 +39,10 @@ class Game:
         return self.currentColor
 
     def add_to_deaths(self, player):
-        self.whoIsDead.append(player)
+        self.deadPlayers.append(player)
+
+    def get_deadPlayers(self):
+        return self.deadPlayers
 
     def add_to_game(self, player):
         self.players.append(player)

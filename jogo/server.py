@@ -72,10 +72,6 @@ def start_countdown_gamestart(gameId):
 
 def start_game(gameId):
     games[gameId].ready = True
-    # Teleport the players to the center
-    for player in games[gameId].players:
-        player.x = WINDOW_WIDTH / 2 - PLAYER_SIZE
-        player.y = WINDOW_HEIGHT / 2 - PLAYER_SIZE
     # While the game exists
     while gameId in games:
         # Randomize new color
@@ -126,6 +122,9 @@ def connection_supervisor(conn, gameId):
                 elif data is Getsquares:
                     # Wants the board's squares
                     conn.sendall(pickle.dumps(games[gameId].get_board()))
+                elif data is Getdeadplayers:
+                    # Wants the game's dead players
+                    conn.sendall(pickle.dumps(games[gameId].get_deadPlayers()))
                 else:
                     # Wants other player's locations and set its new position
                     games[gameId].players[get_player_index(p, gameId)].setAll(data)
@@ -146,9 +145,9 @@ def connection_supervisor(conn, gameId):
                                    and square.y < p.y + (p.height / 2) < square.y + square.height:
                                     # Is inside the square
                                     if square.color == (0, 0, 0):
-                                        print("Caiu no void")
                                         # Fell into the void
                                         p.is_dead = True
+                                        games[gameId].add_to_deaths(p)
                                         break
 
                     conn.sendall(pickle.dumps(reply))
