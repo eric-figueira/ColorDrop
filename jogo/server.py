@@ -124,6 +124,7 @@ def connection_supervisor(conn, gameId):
                     conn.sendall(pickle.dumps(games[gameId].get_board()))
                 elif data is Getdeadplayers:
                     # Wants the game's dead players
+                    #print(games[gameId].get_deadPlayers())
                     conn.sendall(pickle.dumps(games[gameId].get_deadPlayers()))
                 else:
                     # Wants other player's locations and set its new position
@@ -145,9 +146,11 @@ def connection_supervisor(conn, gameId):
                                    and square.y < p.y + (p.height / 2) < square.y + square.height:
                                     # Is inside the square
                                     if square.color == (0, 0, 0):
+                                        #print("In the void!")
                                         # Fell into the void
                                         p.is_dead = True
                                         games[gameId].add_to_deaths(p)
+                                        #print("died")
                                         break
 
                     conn.sendall(pickle.dumps(reply))

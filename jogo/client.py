@@ -13,7 +13,7 @@ win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("ColorDrop")
 
 board_size = 500
-player_size = 50
+
 
 # Load Fonts
 press_key_font = pygame.font.Font("assets/prstart.ttf", 20)
@@ -25,8 +25,6 @@ color_font = pygame.font.Font("assets/rexlia rg.otf", 45)
 menu_screen_bg = pygame.image.load("assets/bg.png").convert_alpha()
 pygame.display.set_icon(pygame.image.load("assets/logo.png"))
 
-# Load Sounds
-
 
 def sine_wave(speed, time, how_far, overallY):
     t = pygame.time.get_ticks() / 2 % time
@@ -34,7 +32,6 @@ def sine_wave(speed, time, how_far, overallY):
     y = math.sin(t / speed) * how_far + overallY
     y = int(y)
     return y
-
 
 
 def redraw_main_screen(p, players, message, color, board, has_started, dead_players):
@@ -57,7 +54,7 @@ def redraw_main_screen(p, players, message, color, board, has_started, dead_play
             square.draw(win)
 
     # Draw player and other players
-    if p not in dead_players:
+    if not p.is_dead:
         p.draw(win, (207, 181, 59))
     for player in players:
         if player not in dead_players:
@@ -91,10 +88,12 @@ def main():
         # Receive board
         board = n.send(Getsquares)
 
-        # Receive dead playres
+        # Receive dead players
         dead_players = n.send(Getdeadplayers)
-        if p in dead_players:
-            message = "You fell into the void! You can no longer play!"
+        for pl in dead_players:
+            if p is pl:
+                p.is_dead = True
+                message = "You fell into the void! You can no longer play!"
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
