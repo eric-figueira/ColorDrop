@@ -12,6 +12,12 @@ import time
 server = ""
 port = 5555
 
+WINDOW_WIDTH = 750
+WINDOW_HEIGHT = 850
+PLAYER_SIZE = 25
+BOARD_SIZE = 500
+SQUARE_SIZE = 50
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
@@ -24,6 +30,7 @@ print(">> Server started on port ", port, "- Waiting for connections")
 
 games = {}
 gameId = 0
+playerId = 0
 
 
 def get_random_position(board_size, win_w, win_h, player_size):
@@ -61,19 +68,34 @@ def start_countdown_gamestart(gameId):
         i -= 1
     time.sleep(1)
     change_game_message(gameId, "")
-    # The game began
+    start_game(gameId)
+
+
+def start_game(gameId):
     games[gameId].ready = True
-    # Teleport the players to the center
-    for player in games[gameId].players:
-        player.x = 750 / 2 - 25
-        player.y = 850 / 2 - 25
+    # While the game exists
+    while gameId in games:
+        # Randomize new color
+        games[gameId].randomize_color()
+        # Waits 2 seconds to make the others squares black
+        time.sleep(2)
+        games[gameId].make_squares_black()
+        # Send "Getispositionsafe" that will tell the client whether it is in a black square or not
+        # Wait 3 seconds to make a new board
+        time.sleep(3)
+        games[gameId].currentColor = ""
+        games[gameId].generate_new_board()
+        time.sleep(2)
 
 
 def connection_supervisor(conn, gameId):
     # Send random x,y to the player
-    pos = get_random_position(500, 750, 850, 25)
+    pos = get_random_position(BOARD_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, PLAYER_SIZE)
 
-    p = Player(pos[0], pos[1], 25, 25)
+    global playerId
+    p = Player(pos[0], pos[1], PLAYER_SIZE, PLAYER_SIZE, playerId)
+    playerId += 1
+
     games[gameId].add_to_game(p)
     # If, when the player is added to the game, the number of players is equal than two,
     # we must start the timer to start the game
@@ -98,18 +120,40 @@ def connection_supervisor(conn, gameId):
                     if games[gameId].ready:
                         has_started = 1
                     conn.sendall(pickle.dumps(String(has_started)))
+                elif data is Getcolor:
+                    # Wants the randomized color
+                    conn.sendall(pickle.dumps(String(games[gameId].get_current_color())))
+                elif data is Getsquares:
+                    # Wants the board's squares
+                    conn.sendall(pickle.dumps(games[gameId].get_board()))
+                elif data is Getdeadplayers:
+                    # Wants the game's dead players
+                    conn.sendall(pickle.dumps(games[gameId].get_deadPlayers()))
                 else:
                     # Wants other player's locations and set its new position
                     games[gameId].players[get_player_index(p, gameId)].setAll(data)
 
                     reply = []
-
                     for player in games[gameId].players:
                         # We want to send back to the client the all the players, but not itself, and we can difer than
                         # by their indexes in the game's players array
                         if get_player_index(player, gameId) != get_player_index(p, gameId):
                             reply.append(player)
-                    # Append board
+
+                    # Check if current position is safe, out of the void
+                    if games[gameId].ready:
+                        # Get square where the player is on and check if the color of the square is black
+                        if not p.is_dead:
+                            for square in games[gameId].get_board():
+                                if square.x < p.x + (p.width / 2) < square.x + square.width \
+                                   and square.y < p.y + (p.height / 2) < square.y + square.height:
+                                    # Is inside the square
+                                    if square.color == (0, 0, 0):
+                                        # Fell into the void
+                                        p.is_dead = True
+                                        games[gameId].add_to_deaths(p)
+                                        break
+
                     conn.sendall(pickle.dumps(reply))
         except:
             break
@@ -141,7 +185,7 @@ while True:
             
     if not game_found:
         gameId += 1
-        games[gameId] = Game(gameId)
+        games[gameId] = Game(gameId, WINDOW_WIDTH, WINDOW_HEIGHT, BOARD_SIZE, SQUARE_SIZE)
         print(">> Creating game ", gameId)
 
     start_new_thread(connection_supervisor, (conn, gameId))
