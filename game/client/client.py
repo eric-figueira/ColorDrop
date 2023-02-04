@@ -16,14 +16,14 @@ board_size = 500
 
 
 # Load Fonts
-press_key_font = pygame.font.Font("assets/prstart.ttf", 20)
-menu_screen_font = pygame.font.Font("assets/rexlia rg.otf", 90)
-message_font = pygame.font.Font("assets/rexlia rg.otf", 30)
-color_font = pygame.font.Font("assets/rexlia rg.otf", 45)
+press_key_font = pygame.font.Font("client/assets/prstart.ttf", 20)
+menu_screen_font = pygame.font.Font("client/assets/rexlia rg.otf", 90)
+message_font = pygame.font.Font("client/assets/rexlia rg.otf", 30)
+color_font = pygame.font.Font("client/assets/rexlia rg.otf", 45)
 
 # Load Images
-menu_screen_bg = pygame.image.load("assets/bg.png").convert_alpha()
-pygame.display.set_icon(pygame.image.load("assets/logo.png"))
+menu_screen_bg = pygame.image.load("client/assets/bg.png").convert_alpha()
+pygame.display.set_icon(pygame.image.load("client/assets/logo.png"))
 
 
 def sine_wave(speed, time, how_far, overallY):
