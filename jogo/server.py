@@ -30,6 +30,7 @@ print(">> Server started on port ", port, "- Waiting for connections")
 
 games = {}
 gameId = 0
+playerId = 0
 
 
 def get_random_position(board_size, win_w, win_h, player_size):
@@ -91,7 +92,10 @@ def connection_supervisor(conn, gameId):
     # Send random x,y to the player
     pos = get_random_position(BOARD_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, PLAYER_SIZE)
 
-    p = Player(pos[0], pos[1], PLAYER_SIZE, PLAYER_SIZE)
+    global playerId
+    p = Player(pos[0], pos[1], PLAYER_SIZE, PLAYER_SIZE, playerId)
+    playerId += 1
+
     games[gameId].add_to_game(p)
     # If, when the player is added to the game, the number of players is equal than two,
     # we must start the timer to start the game
@@ -124,7 +128,6 @@ def connection_supervisor(conn, gameId):
                     conn.sendall(pickle.dumps(games[gameId].get_board()))
                 elif data is Getdeadplayers:
                     # Wants the game's dead players
-                    #print(games[gameId].get_deadPlayers())
                     conn.sendall(pickle.dumps(games[gameId].get_deadPlayers()))
                 else:
                     # Wants other player's locations and set its new position
@@ -146,11 +149,9 @@ def connection_supervisor(conn, gameId):
                                    and square.y < p.y + (p.height / 2) < square.y + square.height:
                                     # Is inside the square
                                     if square.color == (0, 0, 0):
-                                        #print("In the void!")
                                         # Fell into the void
                                         p.is_dead = True
                                         games[gameId].add_to_deaths(p)
-                                        #print("died")
                                         break
 
                     conn.sendall(pickle.dumps(reply))
