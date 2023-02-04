@@ -2,7 +2,8 @@ import pygame
 
 
 class Player:
-    def __init__(self, x, y, w, h):
+    def __init__(self, x, y, w, h, id):
+        self.id = id
         self.x = x
         self.y = y
         self.width = w
@@ -19,6 +20,7 @@ class Player:
         self.rect = (model.x, model.y, model.width, model.height)
         self.vel = model.vel
         self.is_dead = model.is_dead
+        self.id = model.id
 
     def draw(self, window, color):
         pygame.draw.rect(window, color, self.rect)

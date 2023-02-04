@@ -56,8 +56,13 @@ def redraw_main_screen(p, players, message, color, board, has_started, dead_play
     # Draw player and other players
     if not p.is_dead:
         p.draw(win, (207, 181, 59))
+
+    dead_players_ids = []
+    for pl in dead_players:
+        if pl.id != p.id:
+            dead_players_ids.append(pl.id)
     for player in players:
-        if player not in dead_players:
+        if player.id not in dead_players_ids:
             player.draw(win, (100, 100, 100))
 
     pygame.display.update()
@@ -91,7 +96,7 @@ def main():
         # Receive dead players
         dead_players = n.send(Getdeadplayers)
         for pl in dead_players:
-            if p is pl:
+            if p.id == pl.id:
                 p.is_dead = True
                 message = "You fell into the void! You can no longer play!"
 
