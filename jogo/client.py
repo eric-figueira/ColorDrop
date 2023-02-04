@@ -98,7 +98,7 @@ def main():
         for pl in dead_players:
             if p.id == pl.id:
                 p.is_dead = True
-                message = "You fell into the void! You can no longer play!"
+                message = "You fell into the void!"
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
