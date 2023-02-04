@@ -1,7 +1,7 @@
 # ColorDrop
 
 ## What is it
-ColorDrop is a multiplayer game made in python, it consists in a game with minimum of 2 players and maximum of 8 in which they are in a board where many squares appear and disappear, if you step in the right color, you live, otherwise, you fall into the void!
+ColorDrop is a multiplayer game made in python (pygame), it consists in a game with minimum of 2 players and maximum of 8 in which they are in a board where many squares appear and disappear, if you step in the right color, you live, otherwise, you fall into the void!
  
 ![image](https://user-images.githubusercontent.com/113946578/216772227-7fd4f18d-959e-4671-9edc-82119a74e1db.png)
 
