@@ -10,7 +10,7 @@ pygame.font.init()
 width = 750
 height = 850
 win = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Color Drop")
+pygame.display.set_caption("ColorDrop")
 
 board_size = 500
 player_size = 50
@@ -23,6 +23,7 @@ color_font = pygame.font.Font("assets/rexlia rg.otf", 45)
 
 # Load Images
 menu_screen_bg = pygame.image.load("assets/bg.png").convert_alpha()
+pygame.display.set_icon(pygame.image.load("assets/logo.png"))
 
 # Load Sounds
 
