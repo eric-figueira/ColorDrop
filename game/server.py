@@ -74,7 +74,6 @@ def start_countdown_gamestart(gameId):
         change_game_message(gameId, "")
         start_game(gameId)
     else:
-        print("Uai so")
         timer.cancel()
         change_game_message(gameId, "Not enough players!")
 
