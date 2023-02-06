@@ -10,7 +10,7 @@ from string import String
 import time
 
 server = ""
-port = 5555
+port = 3000
 
 WINDOW_WIDTH = 750
 WINDOW_HEIGHT = 850
@@ -62,13 +62,20 @@ def change_game_message(gameId, message):
 def start_countdown_gamestart(gameId):
     i = 15
     while i >= 1:
-        timer = Timer(1, change_game_message, args=(gameId, f"The game starts in {i} seconds!"))
-        timer.start()
+        if len(games[gameId].players) >= 2:
+            timer = Timer(1, change_game_message, args=(gameId, f"The game starts in {i} seconds!"))
+            timer.start()
+            time.sleep(1)
+            i -= 1
+        else:
+            break
+    if i == 0:
         time.sleep(1)
-        i -= 1
-    time.sleep(1)
-    change_game_message(gameId, "")
-    start_game(gameId)
+        change_game_message(gameId, "")
+        start_game(gameId)
+    else:
+        timer.cancel()
+        change_game_message(gameId, "Not enough players!")
 
 
 def start_game(gameId):

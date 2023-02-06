@@ -1,3 +1,4 @@
+import time
 import pygame
 import math
 from network import Network
@@ -32,6 +33,41 @@ def sine_wave(speed, time, how_far, overallY):
     y = math.sin(t / speed) * how_far + overallY
     y = int(y)
     return y
+
+def redraw_game_stats_screen(status):
+    win.fill((30, 30, 30))
+
+    # Show message
+    if status:
+        fir_text = message_font.render("You Lost!", True, (247, 69, 49))
+        sec_text = message_font.render("You fell into the void!", True, (210, 214, 210))
+    else:
+        fir_text = message_font.render("You Won!", True, (121, 252, 136))
+        sec_text = message_font.render("You were the last player standing!", True, (210, 214, 210))
+
+    win.blit(fir_text, (width / 2 - fir_text.get_width() / 2, height / 2 - 150))
+    win.blit(sec_text, (width / 2 - sec_text.get_width() / 2, height / 2 - 100))
+
+    # Play again message
+    y = sine_wave(200.0, 1280, 10.0, height / 2 + 50)
+
+    text = press_key_font.render("Press any key to play again!", True, (255, 255, 255))
+    win.blit(text, (width / 2 - text.get_width() / 2, y))
+
+    pygame.display.update()
+
+
+def game_stats_screen(status):
+    run = True
+
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or event.type == pygame.KEYDOWN:
+                run = False
+                break
+
+        redraw_game_stats_screen(status)
+
 
 
 def redraw_main_screen(p, players, message, color, board, has_started, dead_players):
@@ -75,6 +111,7 @@ def main():
     # Create a network
     n = Network()
     p = n.getP()
+    prev_game_status = 0
 
     while run:
         clock.tick(60)
@@ -88,6 +125,14 @@ def main():
         message = n.send(Getmessage).get_string()
         # Receive game status
         has_game_started = int(n.send(Getgamestatus).get_string())
+
+        if has_game_started == 1 and has_game_started != prev_game_status:
+            # Teleport players to the center
+            p.x = width / 2 - p.width / 2
+            p.y = height / 2 - p.height / 2
+
+            prev_game_status = 1
+
         # Receive random color
         color = n.send(Getcolor).get_string()
         # Receive board
@@ -99,6 +144,13 @@ def main():
             if p.id == pl.id:
                 p.is_dead = True
                 message = "You fell into the void!"
+
+        if has_game_started:
+            if len(dead_players) == len(players):
+                # The game ended since every other player fell into the void
+                time.sleep(2)
+                game_stats_screen(p.is_dead)
+                break
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
