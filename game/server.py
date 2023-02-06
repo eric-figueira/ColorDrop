@@ -10,7 +10,7 @@ from string import String
 import time
 
 server = ""
-port = 5555
+port = 8080
 
 WINDOW_WIDTH = 750
 WINDOW_HEIGHT = 850
