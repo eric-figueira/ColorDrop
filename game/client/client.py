@@ -34,6 +34,41 @@ def sine_wave(speed, time, how_far, overallY):
     return y
 
 
+def redraw_game_stats_screen(status):
+    win.fill((30, 30, 30))
+
+    # Show message
+    if status:
+        fir_text = message_font.render("You Lost!", True, (247, 69, 49))
+        sec_text = message_font.render("You fell into the void!", True, (210, 214, 210))
+    else:
+        fir_text = message_font.render("You Won!", True, (121, 252, 136))
+        sec_text = message_font.render("You were the last player standing!", True, (210, 214, 210))
+
+    win.blit(fir_text, (width / 2 - fir_text.get_width() / 2, height / 2 - 150))
+    win.blit(sec_text, (width / 2 - fir_text.get_width() / 2, height / 2))
+
+    # Play again message
+    y = sine_wave(200.0, 1280, 10.0, height / 2 + 50)
+
+    text = message_font.render("Search another game to play again!", True, (121, 252, 136))
+    win.blit(sec_text, (width / 2 - text.get_width() / 2, y))
+
+    pygame.display.update()
+
+
+def game_stats_screen(status):
+    run = True
+
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                break
+
+        redraw_game_stats_screen(status)
+
+
 def redraw_main_screen(p, players, message, color, board, has_started, dead_players):
     win.fill((30, 30, 30))
     # Draw board area
@@ -99,6 +134,11 @@ def main():
             if p.id == pl.id:
                 p.is_dead = True
                 message = "You fell into the void!"
+
+        if len(dead_players) == len(players):
+            # The game ended since every other player fell into the void
+            game_stats_screen(p.is_dead)
+            break
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
